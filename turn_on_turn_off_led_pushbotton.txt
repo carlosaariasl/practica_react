@@ -1,0 +1,61 @@
+#include <PIC16F877A.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <xc.h>
+
+#pragma config FOSC = XT     // Configurar el oscilador para cristal XT
+#pragma config WDTE = OFF    // Desactivar el watchdog timer
+#pragma config PWRTE = ON    // Activar el Power-up Timer
+#pragma config BOREN = OFF   // Desactivar el Brown-out Reset
+#pragma config LVP = OFF     // Desactivar el Low Voltage Programming
+#pragma config CPD = OFF     // Desactivar el Data Code Protection
+#pragma config WRT = OFF     // Desactivar el Flash Program Memory Write Protection
+#pragma config CP = OFF      // Desactivar el Code Protection
+
+#define LED1 RB0 // Definir el pin RB0 como LED1
+#define LED2 RB1 // Definir el pin RB1 como LED2
+#define LED3 RB2 // Definir el pin RB2 como LED3
+#define LED4 RB3 // Definir el pin RB3 como LED4
+#define BUTTON RA0 // Definir el pin RA0 como botón
+
+#define _XTAL_FREQ 4000000 // Define la frecuencia de reloj a 4 MHz (o la frecuencia que estés utilizando)
+
+void delay_ms(uint16_t ms)
+{
+    while (ms--)
+    {
+        __delay_us(1000); // Esperar 1 ms
+    }
+}
+
+void main()
+{
+    TRISB = 0b00000000; // Configurar todos los pines de RB como salidas
+    TRISA = 0b00000001; // Configurar RA0 como entrada
+
+    PORTB = 0x00; // Inicializar PORTB en 0
+    PORTA = 0x00; // Inicializar PORTA en 0
+
+    bool prevButtonState = false; // Variable para almacenar el estado previo del botón
+    bool currentButtonState; // Variable para almacenar el estado actual del botón
+
+    while (1) // Bucle infinito
+    {
+        currentButtonState = (BUTTON != 0); // Leer el estado actual del botón
+
+        // Comprobar si el botón ha sido presionado (flanco de subida)
+        if (currentButtonState && !prevButtonState)
+        {
+            LED1 = !LED1; // Cambiar el estado del LED1 (encender o apagar)
+            delay_ms(250); // Esperar 250 ms
+            LED2 = !LED2; // Cambiar el estado del LED2
+            delay_ms(250);
+            LED3 = !LED3; // Cambiar el estado del LED3
+            delay_ms(250);
+            LED4 = !LED4; // Cambiar el estado del LED4
+            delay_ms(250);
+        }
+
+        prevButtonState = currentButtonState; // Actualizar el estado previo del botón
+    }
+}
